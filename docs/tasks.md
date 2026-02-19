@@ -1,26 +1,18 @@
 # Orbit Tap Rush — Retrofit Tasks
 
-## PLAN MODE gate
-- [x] Q&A discovery documented in `docs/spec.md`
-- [x] Differentiation + retention checklist documented
-- [x] Scope guardrail + post-MVP split documented
-
-## Implementation
-- [x] Add level progression and dynamic hit window to engine
-- [x] Add perfect-hit scoring tier
-- [x] Add combo-earned shield system for fair fail-state control
-- [x] Expand snapshot/state for HUD and tests
-- [x] Add best-score persistence and daily target in UI
-- [x] Add dynamic per-tap feedback text
-
-## Testing
-- [x] Add unit test: perfect-hit flow
-- [x] Add unit test: shielded miss fairness
-- [x] Add unit test: level-up window shrink
-- [x] Add unit test: restart progression reset
-
-## Validation + release
+## P0 (required before ship)
+- [x] Re-run plan-mode docs with Q&A discovery
+- [x] Add differentiation/retention/quality-bar definitions
+- [x] Implement clutch-save fairness mechanic in game engine
+- [x] Update HUD + feedback text for clutch state
+- [x] Add unit tests for new progression and fairness logic
 - [x] Run `./gradlew test assembleDebug`
-- [x] Commit retrofit changes
-- [x] Push to same GitHub repo
-- [x] Update `research/game_factory_status.json` retrofitStatus
+- [x] Commit and push retrofit changes
+
+## P1 (next pass)
+- [ ] Add haptic and lightweight sound feedback for tap outcomes
+- [ ] Add event telemetry hooks (best score, run duration, fail reason)
+
+## Validation notes
+- Retrofit requires green local build/tests before push.
+- Keep gameplay deterministic and fair under increasing speed.

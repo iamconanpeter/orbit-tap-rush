@@ -1,48 +1,37 @@
-# Orbit Tap Rush — Retrofit Technical Plan
+# Orbit Tap Rush — Technical Plan (Retrofit)
 
-## Stack
-- Kotlin + Android SDK Canvas View
-- Min SDK 24 / Target 34
-- JUnit4 logic tests
+## Architecture
+- `OrbitGameEngine` (pure Kotlin rules/state)
+  - Timing hit detection
+  - Combo/score/perfect-hit progression
+  - Shield and clutch-save fairness systems
+- `OrbitRushView` (Android Canvas rendering + input)
+  - Frame loop and drawing
+  - HUD rendering for progression/fairness state
+  - Touch interaction and restart flow
+- `MainActivity`
+  - Lightweight host for custom view
 
-## Retrofit Architecture Changes
+## Retrofit implementation notes
+1. Extend `TapResult` with `CLUTCH_SAVE`.
+2. Track `clutchSaves` in engine snapshot/state.
+3. Award one clutch token at combo milestones (`combo % 7 == 0`, capped at 1).
+4. On lethal miss (`misses == missLimit - 1`), consume clutch token and avoid game over.
+5. Surface clutch state in HUD and feedback text.
 
-### Engine (`OrbitGameEngine`)
-Add progression/fairness states:
-- `level`, `hitsThisLevel`
-- `shieldCharges` (combo-earned)
-- `perfectHits`
-- dynamic `hitWindow`
-- `TapResult` enum (`HIT`, `PERFECT_HIT`, `MISS`, `SHIELDED_MISS`, `GAME_OVER`)
+## Performance and reliability constraints
+- Clamp update delta to `<= 0.05f` to prevent resume spikes.
+- Continue allocation-light draw loop (reuse paints, primitive geometry only).
+- Keep engine deterministic and unit-testable via helper test hooks.
 
-Rules:
-- Combo every 5 grants up to 2 shield charges.
-- Miss consumes shield first if available (fairness control).
-- Perfect hit threshold = `hitWindow * 0.35`.
-- Level-up tightens hit window and increases angular speed.
+## Test strategy
+- Keep existing core tests: perfect scoring, shield behavior, level ramp, restart.
+- Add retrofit tests:
+  - combo-seven grants clutch token
+  - clutch token prevents lethal miss game-over
+- Test type: local JUnit4 only (no instrumentation needed for rule coverage).
 
-### View (`OrbitRushView`)
-- Render additional HUD rows: level, shield, perfect hits, best score, daily target.
-- Store best score in `SharedPreferences`.
-- Show contextual feedback string per tap result.
-
-## Differentiation vs low-quality clones (implementation mapping)
-- **Clone weakness:** flat scoring loop → **Fix:** perfect-hit + level multipliers.
-- **Clone weakness:** harsh fail-state → **Fix:** earned shield forgiveness.
-- **Clone weakness:** no reason to return → **Fix:** persistent best + daily target objective.
-
-## Test Strategy
-1. Perfect-hit result and scoring path.
-2. Shield earn + shielded miss behavior.
-3. Level-up causes hit-window shrink.
-4. Restart clears progression state.
-
-## Performance / Quality Notes
-- Keep per-frame object allocation minimal.
-- Continue delta clamp to avoid frame-jump unfairness.
-- Avoid additional layout passes (Canvas-only rendering retained).
-
-## Validation Commands
-- `./gradlew test`
-- `./gradlew assembleDebug`
-- combined: `./gradlew test assembleDebug`
+## Build/validation commands
+```bash
+./gradlew test assembleDebug
+```

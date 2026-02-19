@@ -59,8 +59,14 @@ class OrbitGameEngineTest {
             engine.forceAnglesForTest(player = 0f, target = 0f)
             engine.tap()
         }
-        engine.forceMissesForTest(2)
 
+        // Consume any shield first so lethal miss path reaches clutch-save logic.
+        while (engine.snapshot().shieldCharges > 0) {
+            engine.forceAnglesForTest(player = 0f, target = 3.14f)
+            engine.tap()
+        }
+
+        engine.forceMissesForTest(2)
         engine.forceAnglesForTest(player = 0f, target = 3.14f)
         val result = engine.tap()
         val after = engine.snapshot()
